@@ -1,4 +1,4 @@
-when i press edit am getting this error message,ive debugged the whole of yesterday yet no success kept getting same error [**Internal Server Error** **Illuminate\Contracts\Container\BindingResolutionException** **Target class [role] does not exist.**
+when i press edit am getting this error message[**Internal Server Error** **Illuminate\Contracts\Container\BindingResolutionException** **Target class [role] does not exist.**
    throw new BindingResolutionException("Target class [$concrete] does not exist.", 0, $e);]
 
 
@@ -7,16 +7,12 @@ when i press edit am getting this error message,ive debugged the whole of yester
 [stacktrace][2025-01-21 13:14:19] local.ERROR: Target class [role] does not exist. {"userId":1,"exception":"[object] (Illuminate\\Contracts\\Container\\BindingResolutionException(code: 0): Target class [role] does not exist. at C:\\nginx\\scripts\\laravelprojects\\it-ticket-system\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php:946)
 [stacktrace]
 
-
-
-
 PS C:\nginx\scripts\laravelprojects\it-ticket-system> php artisan middleware:list
 
    ERROR  There are no commands defined in the "middleware" namespace.
  why am i getting the errors?
 
 below are some of my code for reference
-
 
 
 RoleMiddleware.php
@@ -47,6 +43,7 @@ class RoleMiddleware
         return $next($request);
     }
 }
+
 ]
 
 
@@ -64,7 +61,12 @@ class Kernel extends HttpKernel
      * @var array<int, class-string|string>
      */
     protected $middleware = [
-        // ... other middleware
+        // \App\Http\Middleware\TrustHosts::class,
+        \Illuminate\Http\Middleware\TrustProxies::class,
+        \Illuminate\Http\Middleware\HandleCors::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \Illuminate\Foundation\Http\Middleware\TrimStrings::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
     ];
 
     /**
@@ -74,27 +76,39 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
-            // ... web middleware
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
+
         'api' => [
-            // ... api middleware
+            \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
 
     /**
-     * The application's route middleware.
+     * The application's middleware aliases.
      *
      * @var array<string, class-string|string>
      */
-    protected $routeMiddleware = [
-        // 'auth' => \App\Http\Middleware\Authenticate::class,
+    protected $middlewareAliases = [
+        'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        // Add your role middleware here:
+        'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
+        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
     ];
-
-
 }
+
 ]
 
 
@@ -125,9 +139,13 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/tickets/{ticket}/assign', [TicketController::class, 'assign'])->name('tickets.assign');
     });
 
+
+
     // Comments route
     Route::post('tickets/{ticket}/comments', [CommentController::class, 'store'])->name('comments.store');
 });
+
+
 ]
 
 
@@ -632,4 +650,5 @@ return new class extends Migration
 
 
 
+can spatie laravel permission help and make the error go away and make my code work better
 
